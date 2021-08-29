@@ -1,12 +1,12 @@
-{ lib, stdenv, fetchurl, appimageTools, makeWrapper, electron }:
+{ lib, stdenv, fetchurl, appimageTools, makeWrapper, electron, git }:
 
 stdenv.mkDerivation rec {
   pname = "logseq";
-  version = "0.3.3";
+  version = "0.3.6";
 
   src = fetchurl {
     url = "https://github.com/logseq/logseq/releases/download/${version}/logseq-linux-x64-${version}.AppImage";
-    sha256 = "OweKV+vF8H1QMNhIs0Z9/uUAuu1cCTitH2P7barS0ao=";
+    sha256 = "5ZAaCdMy3vV+zckCZNiGqGdMKmd16O8HckRSpESDpn4=";
     name = "${pname}-${version}.AppImage";
   };
 
@@ -38,8 +38,13 @@ stdenv.mkDerivation rec {
   postFixup = ''
     makeWrapper ${electron}/bin/electron $out/bin/${pname} \
       --add-flags $out/share/${pname}/resources/app
+    dugite=$out/share/${pname}/resources/app/node_modules/dugite
+    rm -f $dugite/git/bin/git
+    ln -s ${git}/bin/git $dugite/git/bin/git
+    rm -f $dugite/git/libexec/git-core/git
+    ln -s ${git}/bin/git $dugite/git/libexec/git-core/git  
   '';
-
+  
   passthru.updateScript = ./update.sh;
 
   meta = with lib; {
